@@ -6,6 +6,7 @@
 
     <application
         android:allowBackup="true"
+        android:enableOnBackInvokedCallback="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -15,6 +16,21 @@
         android:theme="@style/Theme.LoginGoogle"
         tools:targetApi="31">
         <activity
+            android:name=".Rashid"
+            android:exported="false" />
+        <activity
+            android:name=".BossesFavoritos"
+            android:exported="false" />
+        <activity
+            android:name=".CriaturaDoDia"
+            android:exported="false" />
+        <activity
+            android:name=".BossDoDia"
+            android:exported="false" />
+        <activity
+            android:name=".Entrada"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity4"
             android:exported="false" />
         <activity
@@ -23,6 +39,9 @@
         <activity
             android:name=".MainActivity3"
             android:exported="false" />
+        <activity
+            android:name=".ListBosses"
+            android:label="ListBosses" />
         <activity
             android:name=".MainActivity2"
             android:exported="false" />

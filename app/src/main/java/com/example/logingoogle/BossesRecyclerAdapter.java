@@ -2,7 +2,6 @@ package com.example.logingoogle;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,62 +20,51 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 
-//Adapter do Recycler View
-public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
+public class BossesRecyclerAdapter extends RecyclerView.Adapter<BossesRecyclerAdapter.BossViewHolder> {
 
-    ArrayList<Creature> creatureArrayListLocal;
-    ArrayList<Creature> creatureArrayListCopia;
+    private ArrayList<Bosses> bossesList;
+    private ArrayList<Bosses> bossesListCopia;
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference databaseReference;
 
-    FirebaseDatabase firebaseDatabase;
-    DatabaseReference databaseReference;
-
-    public RecyclerAdapter(ArrayList<Creature> creatureArrayListLocal_) {
-        this.creatureArrayListLocal = creatureArrayListLocal_;
-        creatureArrayListCopia = new ArrayList<>(creatureArrayListLocal);
+    public BossesRecyclerAdapter(ArrayList<Bosses> bossesList_) {
+        this.bossesList = bossesList_;
+        bossesListCopia = new ArrayList<>(bossesList);
     }
 
     @NonNull
     @Override
-    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        //ViewHolder com XML do formato dos itens da lista...
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_items, parent, false);
-
-        return new MyViewHolder(itemView);
+    public BossViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_items_b, parent, false);
+        return new BossViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        String name = creatureArrayListLocal.get(position).getName();
-        String race = creatureArrayListLocal.get(position).getRace();
-        String imageUrl = creatureArrayListLocal.get(position).getImageUrl();
+    public void onBindViewHolder(@NonNull BossViewHolder holder, int position) {
+        String name = bossesList.get(position).getName();
+        String imageUrl = bossesList.get(position).getImageUrl();
 
         holder.mTextViewCre.setText(name);
-        holder.mTextViewRace.setText(race);
 
         Glide.with(holder.mImageView.getContext())
                 .asGif()
                 .load(imageUrl)
                 .into(holder.mImageView);
-
     }
 
     @Override
     public int getItemCount() {
-        return creatureArrayListLocal.size();
+        return bossesList.size();
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
+    public class BossViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView mTextViewCre;
-        TextView mTextViewRace;
         ImageView mImageView;
 
-        public MyViewHolder(@NonNull View itemView) {
+        public BossViewHolder(@NonNull View itemView) {
             super(itemView);
             mTextViewCre = itemView.findViewById(R.id.textViewCreature);
-            mTextViewRace = itemView.findViewById(R.id.textViewRace);
-
             mImageView = itemView.findViewById(R.id.imageView);
 
             firebaseDatabase = FirebaseDatabase.getInstance();
@@ -87,32 +75,30 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
         @Override
         public void onClick(View view) {
-
-
             // MainActivity3 (lista a API)
-            if (view.getContext().toString().contains("MainActivity3")) {
+            if (view.getContext().toString().contains("ListBosses")) {
                 new AlertDialog.Builder(view.getContext())
-                        .setTitle("Salvar Criatura")
+                        .setTitle("Salvar Boss")
                         .setMessage("Confirma salvar nos favoritos?")
                         .setIcon(R.drawable.ic_baseline_favorite_border_24)
                         .setPositiveButton("Sim", new DialogInterface.OnClickListener() {
                             //click no botão de ok, salvar no Firebase, método "inserirEm()"
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                Toast.makeText(view.getContext(), "Criatura salva nos favoritos.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(view.getContext(), "Boss salvo nos favoritos.", Toast.LENGTH_SHORT).show();
                                 inserirEm(getLayoutPosition());
 
                             }
                         })
                         .setNegativeButton("Não", null).show();
-            } else if (view.getContext().toString().contains("CriaturaDoDia")) {
+            } else if (view.getContext().toString().contains("BossDoDia")) {
                 new AlertDialog.Builder(view.getContext())
-                        .setTitle("Salvar Criatura")
+                        .setTitle("Salvar Boss")
                         .setMessage("Confirma salvar nos favoritos?")
                         .setIcon(R.drawable.ic_baseline_favorite_border_24)
                         .setPositiveButton("Sim", new DialogInterface.OnClickListener() {
                             //click no botão de ok, salvar no Firebase, método "inserirEm()"
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                Toast.makeText(view.getContext(), "Criatura salva nos favoritos.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(view.getContext(), "Boss salvo nos favoritos.", Toast.LENGTH_SHORT).show();
                                 inserirEm(getLayoutPosition());
 
                             }
@@ -128,7 +114,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                         .setPositiveButton("Sim", new DialogInterface.OnClickListener() {
                             //click no botão de ok, remover do Firebase, método "removerEm()"
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                Toast.makeText(view.getContext(), "Criatura removida dos favoritos.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(view.getContext(), "Boss removido dos favoritos.", Toast.LENGTH_SHORT).show();
                                 removerEm(getLayoutPosition());
                             }
                         })
@@ -136,64 +122,63 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             }
         }
 
-        private void inserirEm(int layoutPosition) {
 
+        private void inserirEm(int layoutPosition) {
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-            Creature c = creatureArrayListLocal.get(layoutPosition);
+            if (layoutPosition >= 0 && layoutPosition < bossesList.size()) {
+                Bosses b = bossesList.get(layoutPosition);
 
-            databaseReference.child(user.getUid()).
-                    child("Creatures").
-                    child(c.getName()).
-                    setValue(c);
+                databaseReference.child(user.getUid())
+                        .child("Bosses")
+                        .child(b.getName())
+                        .setValue(b);
+            }
         }
 
+        // Método para remover
+        private void removerEm(int layoutPosition) {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+            if (layoutPosition >= 0 && layoutPosition < bossesList.size()) {
+                Bosses b = bossesList.get(layoutPosition);
+
+                // Remover do Firebase
+                databaseReference.child(user.getUid())
+                        .child("Bosses")
+                        .child(b.getName())
+                        .removeValue();
+
+                // Remover da lista local
+                bossesList.remove(layoutPosition);
+
+                // Notificar o RecyclerView sobre as mudanças
+                notifyItemRemoved(layoutPosition);
+                notifyItemRangeChanged(layoutPosition, bossesList.size());
+            }
+        }
     }
 
-    //remover no Firebase
-    // Remover no Firebase
-    public void removerEm(int layoutPosition) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        Creature c = creatureArrayListLocal.get(layoutPosition);
-
-        // Remover do Firebase
-        databaseReference.child(user.getUid()).child("Creatures").child(c.getName()).removeValue();
-
-        // Remover da lista local
-        creatureArrayListLocal.remove(layoutPosition);
-
-        // Notificar o RecyclerView sobre as mudanças
-        notifyItemRemoved(layoutPosition);
-        notifyItemRangeChanged(layoutPosition, creatureArrayListLocal.size());
-    }
-
-
-    public void setCreatureList(ArrayList<Creature> creatureList) {
-        this.creatureArrayListLocal = creatureList;
+    public void setBossesList(ArrayList<Bosses> bossesList) {
+        this.bossesList = bossesList;
         notifyDataSetChanged();
     }
 
-
     public void filtrar(String text) {
-        // Limpa o array que monta a lista ao buscar algum termo na searchView
-        creatureArrayListLocal.clear();
+        bossesList.clear();
 
         if (text.isEmpty()) {
-            creatureArrayListLocal.addAll(creatureArrayListCopia);
+            bossesList.addAll(bossesListCopia);
         } else {
-
             text = text.toLowerCase();
 
-            // Percorre o array com os dados originais (todos os favoritos)
-            for (Creature item : creatureArrayListCopia) {
-                // Caso, nos dados originais, exista o termo procurado, popule o array vazio com o item
-                if (item.getName().toLowerCase().contains(text) || item.getRace().toLowerCase().contains(text)) {
-                    creatureArrayListLocal.add(item);
+            for (Bosses item : bossesListCopia) {
+                if (item.getName().toLowerCase().contains(text)) {
+                    bossesList.add(item);
                 }
             }
         }
 
-        // Notifica o adapter sobre as mudanças nos dados
         notifyDataSetChanged();
     }
 }

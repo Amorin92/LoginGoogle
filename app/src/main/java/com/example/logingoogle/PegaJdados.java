@@ -49,21 +49,48 @@ public class PegaJdados extends AsyncTask<String, Void, ArrayList<Creature>> {
                     creatureList = getDados(texto);
                     return creatureList;
                 } else {
-                    return null;
+                    // Adicione aqui o tratamento para resposta não OK (erro HTTP)
+                    Creature errorCreature = new Creature();
+                    errorCreature.setErrorCode(httpURLConnection.getResponseCode());
+                    errorCreature.setErrorMessage("Resposta vazia da API");
+                    creatureList.add(errorCreature);
+                    return creatureList;
                 }
             } else {
                 // Adicione aqui o tratamento para resposta não OK (erro HTTP)
-                return null;
+                Creature errorCreature = new Creature();
+                errorCreature.setErrorCode(httpURLConnection.getResponseCode());
+                errorCreature.setErrorMessage("Erro HTTP: " + httpURLConnection.getResponseMessage());
+                creatureList.add(errorCreature);
+                return creatureList;
             }
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            // Adicione aqui o tratamento para exceções de URL mal formada
+            Creature errorCreature = new Creature();
+            errorCreature.setErrorCode(500); // Código para erro interno do servidor
+            errorCreature.setErrorMessage("Erro de URL mal formada: " + e.getMessage());
+            creatureList.add(errorCreature);
+            return creatureList;
         } catch (IOException e) {
             e.printStackTrace();
+            // Adicione aqui o tratamento para outras exceções de E/S
+            Creature errorCreature = new Creature();
+            errorCreature.setErrorCode(500); // Código para erro interno do servidor
+            errorCreature.setErrorMessage("Erro de E/S: " + e.getMessage());
+            creatureList.add(errorCreature);
+            return creatureList;
         } catch (JSONException e) {
             e.printStackTrace();
+            // Adicione aqui o tratamento para exceções de JSON
+            Creature errorCreature = new Creature();
+            errorCreature.setErrorCode(500); // Código para erro interno do servidor
+            errorCreature.setErrorMessage("Erro de JSON: " + e.getMessage());
+            creatureList.add(errorCreature);
+            return creatureList;
         }
-        return creatureList;
     }
+
 
     @Override
     protected void onPostExecute(ArrayList<Creature> creatureList) {

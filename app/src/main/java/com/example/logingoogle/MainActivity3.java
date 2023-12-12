@@ -82,11 +82,11 @@ public class MainActivity3 extends AppCompatActivity {
 
 
         // Configuração do botão "Voltar"
-        Button btnVoltar = findViewById(R.id.btnVoltar);
+        Button btnVoltar = findViewById(R.id.btnVoltarR);
         btnVoltar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity3.this, MainActivity.class);
+                Intent intent = new Intent(MainActivity3.this, Entrada.class);
                 startActivity(intent);
             }
         });
@@ -193,9 +193,17 @@ public class MainActivity3 extends AppCompatActivity {
             pegaJdados.setOnDataReadyListener(new PegaJdados.OnDataReadyListener() {
                 @Override
                 public void onDataReady(ArrayList<Creature> creatures) {
-                    if (creatures != null) {
-                        creatureArrayList.addAll(creatures);
-                        Log.e("Informações baixadas:", String.valueOf(creatureArrayList.size()));
+                    if (creatures != null && creatures.size() > 0) {
+                        Creature creature = creatures.get(0);
+
+                        if (creature.getErrorCode() == 0) {
+                            // Se não houver erro, adicione à lista
+                            creatureArrayList.add(creature);
+                        } else {
+                            // Se houver erro, exiba a mensagem de erro
+                            Toast.makeText(MainActivity3.this, creature.getErrorMessage(), Toast.LENGTH_SHORT).show();
+                        }
+
                         recyclerAdapter.notifyDataSetChanged();
                     }
                 }
@@ -205,5 +213,6 @@ public class MainActivity3 extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
 
 }

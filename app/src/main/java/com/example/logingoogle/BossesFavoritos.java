@@ -25,14 +25,14 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 
-public class UsuarioFavoritos extends AppCompatActivity {
+public class BossesFavoritos extends AppCompatActivity {
 
     Button btnSair;
     SearchView searchView;
     RecyclerView recyclerView;
-    ArrayList<Creature> creatureArrayListFavoritos = new ArrayList<>();
+    ArrayList<Bosses> BossesArrayListFavoritos = new ArrayList<>();
 
-    RecyclerAdapter recyclerAdapter;
+    BossesRecyclerAdapter BossesRecyclerAdapter;
 
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
@@ -41,7 +41,7 @@ public class UsuarioFavoritos extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_usuario_favoritos);
+        setContentView(R.layout.activity_bosses_favoritos);
 
         recyclerView = findViewById(R.id.recyclerView);
         btnSair = findViewById(R.id.btnSair);
@@ -61,9 +61,9 @@ public class UsuarioFavoritos extends AppCompatActivity {
             public void onClick(View view) {
                 FirebaseAuth.getInstance().signOut();
 
-                Toast.makeText(UsuarioFavoritos.this, "Você saiu!", Toast.LENGTH_LONG).show();
+                Toast.makeText(BossesFavoritos.this, "Você saiu!", Toast.LENGTH_LONG).show();
 
-                startActivity(new Intent(UsuarioFavoritos.this, MainActivity.class));
+                startActivity(new Intent(BossesFavoritos.this, MainActivity.class));
             }
         });
 
@@ -71,7 +71,7 @@ public class UsuarioFavoritos extends AppCompatActivity {
         btnVoltar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(UsuarioFavoritos.this, Entrada.class);
+                Intent intent = new Intent(BossesFavoritos.this, Entrada.class);
                 startActivity(intent);
             }
         });
@@ -84,15 +84,15 @@ public class UsuarioFavoritos extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String s) {
 
-                recyclerAdapter.filtrar(s);
-                recyclerAdapter.notifyDataSetChanged();
+                BossesRecyclerAdapter.filtrar(s);
+                BossesRecyclerAdapter.notifyDataSetChanged();
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String s) {
-                recyclerAdapter.filtrar(s);
-                recyclerAdapter.notifyDataSetChanged();
+                BossesRecyclerAdapter.filtrar(s);
+                BossesRecyclerAdapter.notifyDataSetChanged();
                 return true;
             }
         });
@@ -105,26 +105,25 @@ public class UsuarioFavoritos extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         //limpando o array para a consulta
-        creatureArrayListFavoritos.clear();
+        BossesArrayListFavoritos.clear();
 
-        query = databaseReference.child(user.getUid()).child("Creatures");
+        query = databaseReference.child(user.getUid()).child("Bosses");
 
         //execução da query. Se tiver dados, entra no onDataChange
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                creatureArrayListFavoritos.clear();
-
+                BossesArrayListFavoritos.clear();
                 //este método é assíncrono, se não houver validação dos dados,
                 //a lista será montada incorretamente pois não aguarda a consulta
                 //assim, o if seguinte é necessário:
                 if (dataSnapshot != null) {
                     for (DataSnapshot objDataSnapshot1 : dataSnapshot.getChildren()) {
-                        Creature c = objDataSnapshot1.getValue(Creature.class);
+                        Bosses b = objDataSnapshot1.getValue(Bosses.class);
 
-                        // Verificar se o Creature já está na lista antes de adicioná-lo
-                        if (!creatureArrayListFavoritos.contains(c)) {
-                            creatureArrayListFavoritos.add(c);
+                        // Verificar se o boss já está na lista antes de adicioná-lo
+                        if (!BossesArrayListFavoritos.contains(b)) {
+                            BossesArrayListFavoritos.add(b);
                         }
                     }
                     //setRecyclerView() para montagem e configuração da RecyclerView mas
@@ -142,11 +141,11 @@ public class UsuarioFavoritos extends AppCompatActivity {
 
     private void setRecyclerView() {
 
-        recyclerAdapter = new RecyclerAdapter(creatureArrayListFavoritos);
+        BossesRecyclerAdapter = new BossesRecyclerAdapter(BossesArrayListFavoritos);
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
 
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(recyclerAdapter);
+        recyclerView.setAdapter(BossesRecyclerAdapter);
     }
 }

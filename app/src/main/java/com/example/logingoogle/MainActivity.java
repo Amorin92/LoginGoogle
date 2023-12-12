@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(MainActivity.this, "Usuário logado", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(MainActivity.this, MainActivity3.class);
+                        Intent intent = new Intent(MainActivity.this, Entrada.class);
                         intent.putExtra("email_digitado", email);
                         startActivity(intent);
                     } else {
